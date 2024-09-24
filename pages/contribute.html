@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Add Contribution - Food Diary</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"
+    ></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex flex-col items-center">
+    <div
+      id="navbar"
+      class="w-full bg-white shadow-md p-4 fixed top-0 left-0 z-50"
+    >
+      <nav class="flex justify-between items-center">
+        <a href="/" class="text-lg font-bold">Food Diary</a>
+        <ul class="flex space-x-4">
+          <li><a href="/dashboard" class="text-blue-500">Dashboard</a></li>
+          <li>
+            <a href="/add-contribution" class="text-blue-500"
+              >Add Contribution</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-6 w-full max-w-lg mt-20">
+      <h1 class="text-2xl font-bold text-center mb-4">Add Contribution</h1>
+      <form id="contributionForm" class="space-y-4">
+        <div class="flex flex-col">
+          <label for="name" class="font-semibold">Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="border border-gray-300 p-2 rounded-lg"
+            required
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="amount" class="font-semibold">Amount (৳):</label>
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            class="border border-gray-300 p-2 rounded-lg"
+            required
+          />
+        </div>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded-lg">
+          Add Contribution
+        </button>
+      </form>
+      <p id="message" class="mt-4"></p>
+      <div id="contributorsList" class="mt-6">
+        <h2
+          class="text-xl font-bold mb-2 border-b-2 border-blue-500 inline-block"
+        >
+          Contributors List
+        </h2>
+        <ul id="contributors" class="space-y-2"></ul>
+      </div>
+    </div>
+    <script type="module">
+      import { loadNavbar, showToast } from "../scripts/functions.js";
+      loadNavbar();
+
+      document
+        .getElementById("contributionForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const name = document.getElementById("name").value;
+          const amount = parseFloat(document.getElementById("amount").value);
+
+          try {
+            const response = await fetch("/api/contribute", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({ name, amount }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              showToast("Contribution added successfully!");
+              document.getElementById("contributionForm").reset();
+              loadContributors();
+            } else {
+              showToast(result.message, "error");
+            }
+          } catch (error) {
+            showToast("Error adding contribution.", "error");
+          }
+        });
+
+      async function loadContributors() {
+        try {
+          const response = await fetch("/api/contribute", {
+            method: "GET",
+            credentials: "include",
+          });
+          const contributors = await response.json();
+
+          const contributorsList = document.getElementById("contributors");
+          contributorsList.innerHTML = "";
+
+          contributors.forEach((contributor) => {
+            const listItem = document.createElement("li");
+            listItem.textContent = `${
+              contributor.name
+            }: ৳${contributor.contribute.toFixed(2)}`;
+            listItem.className =
+              "bg-gray-100 p-2 rounded-lg shadow-sm hover:bg-gray-200";
+            contributorsList.appendChild(listItem);
+          });
+        } catch (error) {
+          console.error("Error loading contributors:", error);
+        }
+      }
+
+      loadContributors();
+    </script>
+  </body>
+</html>

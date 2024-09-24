@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon" />
+  </head>
+  <body class="bg-gray-100">
+    <div id="navbar"></div>
+    <div class="container mx-auto p-6">
+      <h1 class="text-2xl font-bold mb-6 text-center">Overview Page</h1>
+
+      <!-- Total Meals -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 class="text-xl font-semibold mb-4">Total Meals</h2>
+        <p id="totalMeals" class="text-lg">Loading...</p>
+      </div>
+
+      <!-- Total Market Cost -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 class="text-xl font-semibold mb-4">
+          Total Cost of All Market Items
+        </h2>
+        <p id="totalCost" class="text-lg">Loading...</p>
+      </div>
+
+      <!-- Total Contributions -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 class="text-xl font-semibold mb-4">Total Contributions</h2>
+        <p id="totalContributions" class="text-lg">Loading...</p>
+      </div>
+
+      <!-- Per Meal Cost -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">
+          Per Meal Cost for Each Person
+        </h2>
+        <ul id="perMealList" class="space-y-4">
+          <li class="bg-gray-100 p-4 rounded-lg shadow-md">Loading...</li>
+        </ul>
+      </div>
+    </div>
+
+    <script type="module">
+      import { loadNavbar } from "../scripts/functions.js";
+      loadNavbar();
+
+      async function fetchOverviewData() {
+        try {
+          // Fetch data from the consolidated endpoint
+          const response = await fetch("/api/overview");
+          const data = await response.json();
+
+          document.getElementById("totalMeals").textContent = data.totalMeals;
+          document.getElementById(
+            "totalCost"
+          ).textContent = `৳${data.totalCost.toFixed(2)}`;
+
+          // Update the Total Contributions section
+          const totalContributions = data.totalContributions || 0;
+          document.getElementById(
+            "totalContributions"
+          ).textContent = `৳${totalContributions.toFixed(2)}`;
+
+          const perMealList = document.getElementById("perMealList");
+          perMealList.innerHTML = "";
+
+          data.perMealData.forEach((person) => {
+            const listItem = document.createElement("li");
+            listItem.className =
+              "bg-gray-100 p-4 rounded-lg shadow-md flex justify-between items-center";
+            listItem.innerHTML = `
+        <div class="flex-1">${person.name}</div>
+        <div class="flex-1 text-right">৳${person.perMealCost.toFixed(2)}</div>
+      `;
+            perMealList.appendChild(listItem);
+          });
+        } catch (error) {
+          console.error("Error fetching overview data:", error);
+          document.getElementById("totalMeals").textContent =
+            "Error loading data";
+          document.getElementById("totalCost").textContent =
+            "Error loading data";
+          document.getElementById("totalContributions").textContent =
+            "Error loading data";
+          document.getElementById("perMealList").innerHTML =
+            '<li class="bg-gray-100 p-4 rounded-lg shadow-md">Error loading data</li>';
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", fetchOverviewData);
+    </script>
+  </body>
+</html>

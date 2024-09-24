@@ -1,0 +1,36 @@
+const express = require("express");
+const loginApi = require("../controllers/loginApi");
+const registerApi = require("../controllers/registerApi");
+const addPerson = require("../controllers/addPerson");
+const getAllPeople = require("../controllers/getAllPeople");
+const deletePerson = require("../controllers/deletePerson");
+const updateMeal = require("../controllers/updateMeal");
+const shareLink = require("../controllers/shareLink");
+const addFoodItem = require("../controllers/addFoodItem");
+const getFoodItems = require("../controllers/getFoodItems");
+const deleteFoodItem = require("../controllers/deleteFoodItem");
+const logout = require("../controllers/logout");
+const reset = require("../controllers/reset");
+const overview = require("../controllers/overview");
+const getUsername = require("../controllers/getUsername");
+const contribute = require("../controllers/contribute");
+const router = express.Router();
+// Login Route
+router.post("/login", loginApi);
+router.post("/register", registerApi);
+router.post("/add-person", addPerson);
+router.delete("/delete-person", deletePerson);
+router.put("/update-meal", updateMeal);
+router.get("/get-all-people", getAllPeople);
+router.post("/share-link", shareLink);
+router.post("/add-food-item", addFoodItem);
+router.get("/get-food-items", getFoodItems);
+router.get("/overview", overview);
+router.get("/get-username", getUsername);
+router.delete("/delete-food-item", deleteFoodItem);
+router.post("/logout", logout);
+router.post("/reset", reset);
+router.post("/contribute", contribute);
+router.get("/contribute", contribute);
+
+module.exports = router;
